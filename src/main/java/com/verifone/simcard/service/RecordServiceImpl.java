@@ -11,6 +11,7 @@ import com.verifone.simcard.repository.RecordRepository;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,7 @@ public class RecordServiceImpl implements RecordService{
 
   @Override
   public RecordResponseDto createRecord(CreateRecordDto createRecordDto) {
-    var existingRecord = recordRepository.findByMobileNumber(createRecordDto.getMobileNumber());
+    Optional<Record> existingRecord = recordRepository.findByMobileNumber(createRecordDto.getMobileNumber());
     if (existingRecord.isEmpty()) {
       Record record = new Record(createRecordDto.getSimCardNumber(),createRecordDto.getMobileNumber(), createRecordDto.getStateOfRegistration(),createRecordDto.isKyc(), createRecordDto.getTelecomProvider(),createRecordDto.getFullName());
       recordRepository.save(record);
@@ -41,7 +42,7 @@ public class RecordServiceImpl implements RecordService{
 
   @Override
   public RecordResponseDto getRecordById(Integer id) {
-    var existingRecord = recordRepository.findById(id);
+    Optional<Record>  existingRecord = recordRepository.findById(id);
     if(existingRecord.isPresent()) {
       Record record = existingRecord.get();
       return new RecordResponseDto(HttpStatus.OK, "Record fetched successfully", record);
@@ -51,9 +52,9 @@ public class RecordServiceImpl implements RecordService{
 
   @Override
   public RecordResponseDto updateRecord(Integer id, RecordDto recordDto) {
-    var existingRecord = recordRepository.findById(id);
+    Optional<Record>  existingRecord = recordRepository.findById(id);
     if(existingRecord.isPresent()) {
-      var record = existingRecord.get();
+      Record record = existingRecord.get();
       record = updateRecordWithDetails(record,recordDto);
       recordRepository.save(record);
       return new RecordResponseDto(HttpStatus.OK, "Record updated successfully", record);
@@ -63,7 +64,7 @@ public class RecordServiceImpl implements RecordService{
 
   @Override
   public RecordResponseDto deleteRecord(Integer id) {
-    var existingRecord = recordRepository.findById(id);
+    Optional<Record>  existingRecord = recordRepository.findById(id);
     if(existingRecord.isPresent()) {
       Record record = existingRecord.get();
       recordRepository.delete(record);
